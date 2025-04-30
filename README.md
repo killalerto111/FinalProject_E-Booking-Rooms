@@ -108,7 +108,7 @@ python manage.py runserver
 
 ---
 
-## 💌 ติดต่อผู้พัฒนา
+## 📩 ช่องทางการติดต่อ
 
 <div align="center">
 
@@ -125,6 +125,19 @@ python manage.py runserver
     <td>kanzaza.5419@gmail.com</td>
     <td>kanzza007</td>
   </tr>
+  <tr>
+    <td>Saharat</td>
+    <td>TT</td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>Kerkkiat</td>
+    <td>Tangmo</td>
+    <td>maneeins2546@gmail.com</td>
+    <td>0969296462</td>
+  </tr>
+
 </table>
 
 </div>
