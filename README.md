@@ -128,8 +128,8 @@ python manage.py runserver
   <tr>
     <td>Saharat</td>
     <td>TT</td>
-    <td></td>
-    <td></td>
+    <td>saharat.saradee97@gmail.com</td>
+    <td>titeeneverdie</td>
   </tr>
   <tr>
     <td>Kerkkiat</td>
