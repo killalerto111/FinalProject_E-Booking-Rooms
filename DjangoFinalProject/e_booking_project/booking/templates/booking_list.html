@@ -1,0 +1,196 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>รายการจองห้อง</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #2e2e2e; color: #fff; background-image: url("{% static 'images/bg2.png' %}");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        color: white;}
+        .navbar, footer { background-color: #8B0000; }
+        .form-section { background-color: #1f1f1f; padding: 30px; border-radius: 10px; margin-top: 20px; }
+        .form-control { background-color: #333; color: #fff; border: 1px solid #555; }
+        .table-dark th, .table-dark td { vertical-align: middle; }
+        footer { font-size: 0.9rem; padding: 10px 0; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'index' %}">หน้าแรก</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" href="{% url 'form' %}">จองห้อง</a></li>
+                <li class="nav-item"><a class="nav-link active" href="{% url 'booking_list' %}">รายการจองห้อง</a></li>
+            </ul>
+            {% if user.is_authenticated %}
+            <span class="navbar-text me-3">👋 {{ user.username }}</span>
+            <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm">Logout</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="text-center my-4">
+        <h2><i class="bi bi-list-ul"></i> รายการจองห้อง</h2>
+    </div>
+
+    <div class="form-section">
+        <input type="text" id="searchInput" class="form-control mb-3" placeholder="ค้นหาทุกข้อมูล...">
+        <div class="table-responsive">
+            <table id="bookingTable" class="table table-dark table-bordered text-center">
+                <thead>
+                    <tr>
+                        <th>ชื่อผู้จอง</th>
+                        <th>ห้อง</th>
+                        <th>จำนวนคน</th>
+                        <th>โทรศัพท์</th>
+                        <th>เวลา</th>
+                        <th>วัตถุประสงค์</th>
+                        <th>อุปกรณ์</th>
+                        <th>อื่นๆ</th>
+                        <th>การกระทำ</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark text-light">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editModalLabel">แก้ไขข้อมูลจองห้อง</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editForm">
+          <input type="hidden" id="editIndex">
+          <div class="mb-2"><input type="text" id="editName" class="form-control" placeholder="ชื่อผู้จอง"></div>
+          <div class="mb-2"><input type="text" id="editRoom" class="form-control" placeholder="ชื่อห้อง"></div>
+          <div class="mb-2"><input type="number" id="editAttendees" class="form-control" placeholder="จำนวนผู้เข้าร่วม"></div>
+          <div class="mb-2"><input type="text" id="editPhone" class="form-control" placeholder="โทรศัพท์"></div>
+          <div class="row mb-2">
+            <div class="col"><input type="date" id="editStartDate" class="form-control"></div>
+            <div class="col"><input type="time" id="editStartTime" class="form-control"></div>
+          </div>
+          <div class="row mb-2">
+            <div class="col"><input type="date" id="editEndDate" class="form-control"></div>
+            <div class="col"><input type="time" id="editEndTime" class="form-control"></div>
+          </div>
+          <div class="mb-2"><input type="text" id="editPurpose" class="form-control" placeholder="ใช้สำหรับ"></div>
+          <div class="mb-2"><input type="text" id="editEquipments" class="form-control" placeholder="อุปกรณ์ (เช่น โปรเจ็กเตอร์, ของว่าง)"></div>
+          <div class="mb-2"><textarea id="editOther" class="form-control" rows="2" placeholder="อื่นๆ"></textarea></div>
+          <button type="submit" class="btn btn-success w-100">บันทึกการแก้ไข</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div><br><br>
+
+<br><br>
+<footer class="text-center text-light">
+    <strong>This website is created for educational use. |</strong> NoEpic SPUStudent<br>
+    67099190 | 67149706 | 67143059
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function loadBookings() {
+    const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+    const tbody = document.querySelector('#bookingTable tbody');
+    tbody.innerHTML = '';
+    bookings.forEach((b, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${b.name}</td>
+            <td>${b.room}</td>
+            <td>${b.attendees}</td>
+            <td>${b.phone}</td>
+            <td>${b.startDate} ${b.startTime} - ${b.endDate} ${b.endTime}</td>
+            <td>${b.purpose}</td>
+            <td>${b.equipments}</td>
+            <td>${b.other}</td>
+            <td>
+                <button class="btn btn-sm btn-warning me-1" onclick="openEditModal(${index})">แก้ไข</button>
+                <button class="btn btn-sm btn-danger" onclick="deleteBooking(${index})">ยกเลิก</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function openEditModal(index) {
+    const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+    const b = bookings[index];
+    document.getElementById('editIndex').value = index;
+    document.getElementById('editName').value = b.name;
+    document.getElementById('editRoom').value = b.room;
+    document.getElementById('editAttendees').value = b.attendees;
+    document.getElementById('editPhone').value = b.phone;
+    document.getElementById('editStartDate').value = b.startDate;
+    document.getElementById('editStartTime').value = b.startTime;
+    document.getElementById('editEndDate').value = b.endDate;
+    document.getElementById('editEndTime').value = b.endTime;
+    document.getElementById('editPurpose').value = b.purpose;
+    document.getElementById('editEquipments').value = b.equipments;
+    document.getElementById('editOther').value = b.other;
+    var myModal = new bootstrap.Modal(document.getElementById('editModal'));
+    myModal.show();
+}
+
+document.getElementById('editForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const index = document.getElementById('editIndex').value;
+    const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+    bookings[index] = {
+        name: document.getElementById('editName').value,
+        room: document.getElementById('editRoom').value,
+        attendees: document.getElementById('editAttendees').value,
+        phone: document.getElementById('editPhone').value,
+        startDate: document.getElementById('editStartDate').value,
+        startTime: document.getElementById('editStartTime').value,
+        endDate: document.getElementById('editEndDate').value,
+        endTime: document.getElementById('editEndTime').value,
+        purpose: document.getElementById('editPurpose').value,
+        equipments: document.getElementById('editEquipments').value,
+        other: document.getElementById('editOther').value
+    };
+    localStorage.setItem('bookings', JSON.stringify(bookings));
+    loadBookings();
+    bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+});
+
+function deleteBooking(index) {
+    if (confirm('คุณต้องการลบข้อมูลนี้ใช่หรือไม่?')) {
+        const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+        bookings.splice(index, 1);
+        localStorage.setItem('bookings', JSON.stringify(bookings));
+        loadBookings();
+    }
+}
+
+document.getElementById('searchInput').addEventListener('input', function() {
+    const search = this.value.toLowerCase();
+    const trs = document.querySelectorAll('#bookingTable tbody tr');
+    trs.forEach(tr => {
+        tr.style.display = tr.innerText.toLowerCase().includes(search) ? '' : 'none';
+    });
+});
+
+document.addEventListener('DOMContentLoaded', loadBookings);
+</script>
+</body>
+</html>
