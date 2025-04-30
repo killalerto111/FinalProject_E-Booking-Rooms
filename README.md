@@ -1,6 +1,3 @@
-# NoEpic-MeetingRoomReservation
-Created By 3 Handsome SPU Students in the Multiverse for educational
-
 # 🗓️ E-Booking - ระบบจองห้องประชุมด้วย Django
 
 ![Banner](https://media.discordapp.net/attachments/1278174487929688085/1366846432778256475/19febf71b1176d3c.png?ex=68126e70&is=68111cf0&hm=5d644309bde09446aac8910c74ba69a32b582031a6027787b9ea2da7729151ab&=&format=webp&quality=lossless&width=1536&height=864)
